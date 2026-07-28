@@ -1,3 +1,4 @@
+using E2e4.Chess.OpenSeal.Helpers;
 using System.Text;
 using Xunit;
 
@@ -5,49 +6,72 @@ namespace E2e4.Chess.OpenSeal.Test
 {
     public class OpenSealUnitTest
     {
-        private const string _hello = "TIMESTAMP|openseal|Running on an operating system|";
-
-        private readonly long _timestamp1 = 7279154;
-        private readonly long _systemTime1 = 130770708791546526;
-        private readonly byte[] _buffer1 = new byte[]
-        {
-            0x84, 0x80, 0x71, 0x80, 0x9e, 0x80, 0x80, 0x9e, 0x80, 0xcd,
-            0xa7, 0x72, 0x80, 0x8d, 0x9d, 0xac, 0xd2, 0x7a, 0xad, 0xaf,
-            0xa5, 0xb3, 0xa3, 0xa5, 0x75, 0x75, 0x60, 0x68, 0x7c, 0xa1,
-            0x6c, 0x63, 0xa5, 0xa4, 0xb0, 0x6c, 0x7c, 0xa1, 0x9b, 0x6c,
-            0x7d, 0x75, 0xa9, 0x65, 0xb9, 0x93, 0x66, 0x73, 0xbc, 0xb2,
-            0xc0, 0xbe, 0xbc, 0xb2, 0xaa, 0xa6, 0xb4, 0xd5, 0xc9, 0xad,
-            0x80, 0x0a,
-        };
-
         [Fact]
         public void EncryptHelloMessageGivesCorrectByteArray()
         {
-            //Encoding encoding = Encoding.GetEncoding(28591);
-            Encoding encoding = Encoding.GetEncoding("iso-8859-1");
-            string str = OpenSeal.Encrypt(_hello, _systemTime1);
-            byte[] strBuffer = encoding.GetBytes(str);
-            Assert.Equal(_buffer1, strBuffer);
+            string str = OpenSeal.Encrypt(OpenSealTestData.Hello, OpenSealTestData.SystemTime1);
+            byte[] strBuffer = OpenSealTestData.Iso88591.GetBytes(str);
+
+            Assert.Equal(OpenSealTestData.Buffer1, strBuffer);
         }
 
         [Fact]
         public void DecryptOfByteArrayGivesCorrectTimestampAndHelloMessage()
         {
-            //Encoding encoding = Encoding.GetEncoding(28591);
-            Encoding encoding = Encoding.GetEncoding("iso-8859-1");
-            string strBuffer = encoding.GetString(_buffer1);
+            string strBuffer = OpenSealTestData.Iso88591.GetString(OpenSealTestData.Buffer1);
             string plainText = OpenSeal.Decrypt(strBuffer);
 
-            string expectedText = $"{_timestamp1}: {_hello}\n";
+            string expectedText = $"{OpenSealTestData.Timestamp1}: {OpenSealTestData.Hello}\n";
             Assert.Equal(expectedText, plainText);
         }
 
         [Fact]
         public void EncodingByNameAndNumberAreTheSame()
         {
-            Encoding encoding1 = Encoding.GetEncoding(28591);
-            Encoding encoding2 = Encoding.GetEncoding("iso-8859-1");
-            Assert.Equal(encoding1, encoding2);
+            Assert.Equal(Encoding.GetEncoding(28591), OpenSealTestData.Iso88591);
+        }
+
+        [Fact]
+        public void TimestampForFixedSystemTimeMatchesTimeHelperGetTimestamp()
+        {
+            Assert.Equal(OpenSealTestData.Timestamp1, TimeHelper.GetTimestamp(OpenSealTestData.SystemTime1));
+        }
+
+        [Theory]
+        [InlineData(null)]
+        [InlineData("")]
+        public void DecryptOfNullOrEmptyInputReturnsZeroTimestampFallback(string input)
+        {
+            Assert.Equal($"0: {input}\n", OpenSeal.Decrypt(input));
+        }
+
+        [Fact]
+        public void DecryptOfInputMissingTrailingLinefeedReturnsFallbackEchoingInput()
+        {
+            Assert.Equal("0: abc\n", OpenSeal.Decrypt("abc"));
+        }
+
+        [Fact]
+        public void DecryptOfInputWithLengthNotCongruentToOneModTwelveReturnsFallbackEchoingInput()
+        {
+            // After trimming the trailing '\n', "abcde" has length 5, which fails
+            // Decrypt's "length mod 12 == 1" check. The expected value has two
+            // trailing newlines: the input's own, plus the one the fallback appends.
+            Assert.Equal("0: abcde\n\n", OpenSeal.Decrypt("abcde\n"));
+        }
+
+        [Fact]
+        public void DecryptOfCorruptedValidLengthInputReturnsFallbackEchoingInput()
+        {
+            // Flip every byte but the last (which encodes the key offset used to decode
+            // every other byte) so the cipher's internal high-bit consistency check fails.
+            string decoded = OpenSealTestData.Iso88591.GetString(OpenSealTestData.Buffer1);
+            char[] chars = decoded.ToCharArray();
+            for (int i = 0; i < chars.Length - 1; i++)
+                chars[i] = (char)(chars[i] ^ 0xFF);
+            string corrupted = new(chars);
+
+            Assert.Equal($"0: {corrupted}\n", OpenSeal.Decrypt(corrupted));
         }
     }
 }
