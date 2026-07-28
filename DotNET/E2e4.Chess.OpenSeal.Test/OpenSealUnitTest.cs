@@ -1,9 +1,8 @@
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Text;
+using Xunit;
 
 namespace E2e4.Chess.OpenSeal.Test
 {
-    [TestClass]
     public class OpenSealUnitTest
     {
         private const string _hello = "TIMESTAMP|openseal|Running on an operating system|";
@@ -21,17 +20,17 @@ namespace E2e4.Chess.OpenSeal.Test
             0x80, 0x0a,
         };
 
-        [TestMethod]
+        [Fact]
         public void EncryptHelloMessageGivesCorrectByteArray()
         {
             //Encoding encoding = Encoding.GetEncoding(28591);
             Encoding encoding = Encoding.GetEncoding("iso-8859-1");
             string str = OpenSeal.Encrypt(_hello, _systemTime1);
             byte[] strBuffer = encoding.GetBytes(str);
-            CollectionAssert.AreEqual(_buffer1, strBuffer);
+            Assert.Equal(_buffer1, strBuffer);
         }
 
-        [TestMethod]
+        [Fact]
         public void DecryptOfByteArrayGivesCorrectTimestampAndHelloMessage()
         {
             //Encoding encoding = Encoding.GetEncoding(28591);
@@ -40,15 +39,15 @@ namespace E2e4.Chess.OpenSeal.Test
             string plainText = OpenSeal.Decrypt(strBuffer);
 
             string expectedText = $"{_timestamp1}: {_hello}\n";
-            Assert.AreEqual(expectedText, plainText);
+            Assert.Equal(expectedText, plainText);
         }
 
-        [TestMethod]
+        [Fact]
         public void EncodingByNameAndNumberAreTheSame()
         {
             Encoding encoding1 = Encoding.GetEncoding(28591);
             Encoding encoding2 = Encoding.GetEncoding("iso-8859-1");
-            Assert.AreEqual(encoding1, encoding2);
+            Assert.Equal(encoding1, encoding2);
         }
     }
 }
