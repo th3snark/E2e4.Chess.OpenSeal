@@ -32,9 +32,9 @@ namespace E2e4.Chess.OpenSeal.Test
 
         [Theory]
         [MemberData(nameof(GoldenVectors))]
-        public void EncryptMatchesTheCReferenceForEveryPaddingRemainder(string text, string expectedHex)
+        public void EncodeMatchesTheCReferenceForEveryPaddingRemainder(string text, string expectedHex)
         {
-            Assert.Equal(Wire(expectedHex), OpenSeal.Encrypt(text, OpenSealTestData.SystemTime1));
+            Assert.Equal(Wire(expectedHex), OpenSeal.Encode(text, OpenSealTestData.SystemTime1));
         }
 
         [Theory]
@@ -42,9 +42,9 @@ namespace E2e4.Chess.OpenSeal.Test
         [InlineData("hello", "c16cb469a1ccb662a7ac798ed8bac27871a7607f61717c74800a")]
         [InlineData("12345678901", "acbbbdb1aba2b6b8a97379d7d8d1c27099a3657f61777c77800a")]
         [InlineData("tell 1 hello there", "9b6c61697ba5a1ad75aca492d897c4ac777389bc62a87460a1a6beb6a3b0bcbcb4dd71b7800a")]
-        public void DecryptOfTheCReferenceVectorsRecoversTimestampAndText(string text, string expectedHex)
+        public void DecodeOfTheCReferenceVectorsRecoversTimestampAndText(string text, string expectedHex)
         {
-            Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSeal.Decrypt(Wire(expectedHex)));
+            Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSeal.Decode(Wire(expectedHex)));
         }
 
         [Fact]
@@ -54,9 +54,9 @@ namespace E2e4.Chess.OpenSeal.Test
             {
                 string text = new string((char)('!' + length % 90), length);
 
-                string sealedText = OpenSeal.Encrypt(text, OpenSealTestData.SystemTime1);
+                string sealedText = OpenSeal.Encode(text, OpenSealTestData.SystemTime1);
 
-                Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSeal.Decrypt(sealedText));
+                Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSeal.Decode(sealedText));
             }
         }
 
@@ -68,7 +68,7 @@ namespace E2e4.Chess.OpenSeal.Test
         [InlineData(30)]
         public void SealedMessagesHaveTheWireShape(int length)
         {
-            string sealedText = OpenSeal.Encrypt(new string('x', length), OpenSealTestData.SystemTime1);
+            string sealedText = OpenSeal.Encode(new string('x', length), OpenSealTestData.SystemTime1);
 
             Assert.EndsWith("\u0080\n", sealedText);
             Assert.Equal(2, sealedText.Length % 12);
@@ -79,7 +79,7 @@ namespace E2e4.Chess.OpenSeal.Test
         [Fact]
         public void LiveTimestampsRoundTripThroughTheSystemClock()
         {
-            string decoded = OpenSeal.Decrypt(OpenSeal.Encrypt("ping"));
+            string decoded = OpenSeal.Decode(OpenSeal.Encode("ping"));
 
             Assert.Matches(@"^[0-9]+: ping\n$", decoded);
         }
@@ -87,25 +87,25 @@ namespace E2e4.Chess.OpenSeal.Test
         [Fact]
         public void CharactersWithTheHighBitSetLoseItWhenSealed()
         {
-            // The scheme is 7-bit: Encrypt ORs 0x80 into every character, so the decoder cannot
+            // The scheme is 7-bit: Encode ORs 0x80 into every character, so the decoder cannot
             // tell 0xE9 from 0x69. This is inherited from the C reference and pinned here.
-            string sealedText = OpenSeal.Encrypt("caf\u00E9", OpenSealTestData.SystemTime1);
+            string sealedText = OpenSeal.Encode("caf\u00E9", OpenSealTestData.SystemTime1);
 
-            Assert.Equal($"{OpenSealTestData.Timestamp1}: cafi\n", OpenSeal.Decrypt(sealedText));
+            Assert.Equal($"{OpenSealTestData.Timestamp1}: cafi\n", OpenSeal.Decode(sealedText));
         }
 
         [Fact]
-        public void EncryptReplacesCharactersAboveLatin1WithQuestionMarks()
+        public void EncodeReplacesCharactersAboveLatin1WithQuestionMarks()
         {
-            string sealedText = OpenSeal.Encrypt("a\u20ACb", OpenSealTestData.SystemTime1);
+            string sealedText = OpenSeal.Encode("a\u20ACb", OpenSealTestData.SystemTime1);
 
-            Assert.Equal($"{OpenSealTestData.Timestamp1}: a?b\n", OpenSeal.Decrypt(sealedText));
+            Assert.Equal($"{OpenSealTestData.Timestamp1}: a?b\n", OpenSeal.Decode(sealedText));
         }
 
         [Fact]
-        public void EncryptRejectsNull()
+        public void EncodeRejectsNull()
         {
-            Assert.Throws<ArgumentNullException>(() => OpenSeal.Encrypt(null!));
+            Assert.Throws<ArgumentNullException>(() => OpenSeal.Encode(null!));
         }
 
         [Theory]
@@ -113,18 +113,18 @@ namespace E2e4.Chess.OpenSeal.Test
         [InlineData("x\u0018y")]        // stray timestamp marker in the message
         public void MessagesContainingControlCharactersAreNotReadBackAsValid(string text)
         {
-            string sealedText = OpenSeal.Encrypt(text, OpenSealTestData.SystemTime1);
+            string sealedText = OpenSeal.Encode(text, OpenSealTestData.SystemTime1);
 
-            Assert.False(OpenSeal.TryDecrypt(sealedText, out _, out _));
-            Assert.Equal($"0: {sealedText.TrimEnd('\n')}\n", OpenSeal.Decrypt(sealedText));
+            Assert.False(OpenSeal.TryDecode(sealedText, out _, out _));
+            Assert.Equal($"0: {sealedText.TrimEnd('\n')}\n", OpenSeal.Decode(sealedText));
         }
 
         [Fact]
-        public void TryDecryptReturnsTimestampAndMessage()
+        public void TryDecodeReturnsTimestampAndMessage()
         {
-            string sealedText = OpenSeal.Encrypt("tell 1 hi", OpenSealTestData.SystemTime1);
+            string sealedText = OpenSeal.Encode("tell 1 hi", OpenSealTestData.SystemTime1);
 
-            Assert.True(OpenSeal.TryDecrypt(sealedText, out string? timestamp, out string? message));
+            Assert.True(OpenSeal.TryDecode(sealedText, out string? timestamp, out string? message));
             Assert.Equal(OpenSealTestData.Timestamp1.ToString(), timestamp);
             Assert.Equal("tell 1 hi", message);
         }
@@ -137,9 +137,9 @@ namespace E2e4.Chess.OpenSeal.Test
         [InlineData("abcde\n")]                       // wrong length
         [InlineData("aaaaaaaaaaaaA\n")]               // right length, key offset below 0x80
         [InlineData("aaaaaaaaaaaa\u20AC\n")]        // not a byte stream
-        public void TryDecryptRejectsMalformedInputWithoutThrowing(string? input)
+        public void TryDecodeRejectsMalformedInputWithoutThrowing(string? input)
         {
-            Assert.False(OpenSeal.TryDecrypt(input!, out string? timestamp, out string? message));
+            Assert.False(OpenSeal.TryDecode(input!, out string? timestamp, out string? message));
             Assert.Null(timestamp);
             Assert.Null(message);
         }
@@ -149,9 +149,9 @@ namespace E2e4.Chess.OpenSeal.Test
         [InlineData("no terminator", "0: no terminator\n")]
         [InlineData("\n", "0: \n")]
         [InlineData("", "0: \n")]
-        public void DecryptFallbackEchoesTheLineWithASingleTerminator(string input, string expected)
+        public void DecodeFallbackEchoesTheLineWithASingleTerminator(string input, string expected)
         {
-            Assert.Equal(expected, OpenSeal.Decrypt(input));
+            Assert.Equal(expected, OpenSeal.Decode(input));
         }
     }
 }

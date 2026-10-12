@@ -1,5 +1,6 @@
 using E2e4.Chess.OpenSeal.Helpers;
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Text.RegularExpressions;
 
@@ -7,7 +8,7 @@ namespace E2e4.Chess.OpenSeal
 {
     /// <summary>
     /// The FICS "timeseal" obfuscation as implemented by openseal (see C/FatICS/timeseal/openseal.c
-    /// and openseal_decoder.c). Despite the method names this is not cryptography: it is a fixed-key
+    /// and openseal_decoder.c). This is not cryptography: it is a fixed-key
     /// XOR/shuffle that carries a client timestamp so the server can measure lag.
     /// </summary>
     public static class OpenSeal
@@ -43,11 +44,11 @@ namespace E2e4.Chess.OpenSeal
         /// </summary>
         /// <param name="text">The text to seal, without its line terminator.</param>
         /// <param name="systemTime">A Windows file time to take the timestamp from, or 0 for now.</param>
-        public static string Encrypt(string text, long systemTime = 0)
+        public static string Encode(string text, long systemTime = 0)
         {
             if (text == null)
             {
-                throw new ArgumentNullException("text");
+                throw new ArgumentNullException(nameof(text));
             }
 
             long timestamp = TimeHelper.GetTimestamp(systemTime);
@@ -81,11 +82,11 @@ namespace E2e4.Chess.OpenSeal
         /// Like openseal_decoder.c, a malformed line comes back as "0: &lt;line&gt;\n".
         /// </summary>
         /// <param name="s">The sealed line including its terminating line feed.</param>
-        public static string Decrypt(string s)
+        public static string Decode(string? s)
         {
-            string timestamp;
-            string message;
-            if (TryDecrypt(s, out timestamp, out message))
+            string? timestamp;
+            string? message;
+            if (TryDecode(s, out timestamp, out message))
             {
                 return timestamp + ": " + message + "\n";
             }
@@ -110,12 +111,12 @@ namespace E2e4.Chess.OpenSeal
         /// checks are no-ops because of operator precedence (<c>!x&amp;0x80</c> is <c>(!x)&amp;0x80</c>).
         /// Genuine messages satisfy the intended checks implemented here.
         /// </remarks>
-        public static bool TryDecrypt(string s, out string timestamp, out string message)
+        public static bool TryDecode(string? s, [NotNullWhen(true)] out string? timestamp, [NotNullWhen(true)] out string? message)
         {
             timestamp = null;
             message = null;
 
-            if (string.IsNullOrEmpty(s) || s[s.Length - 1] != '\n')
+            if (s == null || s.Length == 0 || s[s.Length - 1] != '\n')
             {
                 return false;
             }
