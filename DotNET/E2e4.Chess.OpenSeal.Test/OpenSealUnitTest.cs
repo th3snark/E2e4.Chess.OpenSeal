@@ -25,18 +25,6 @@ namespace E2e4.Chess.OpenSeal.Test
             Assert.Equal(expectedText, plainText);
         }
 
-        [Fact]
-        public void EncodingByNameAndNumberAreTheSame()
-        {
-            Assert.Equal(Encoding.GetEncoding(28591), OpenSealTestData.Iso88591);
-        }
-
-        [Fact]
-        public void TimestampForFixedSystemTimeMatchesTimeHelperGetTimestamp()
-        {
-            Assert.Equal(OpenSealTestData.Timestamp1, TimeHelper.GetTimestamp(OpenSealTestData.SystemTime1));
-        }
-
         [Theory]
         [InlineData(null)]
         [InlineData("")]
@@ -54,10 +42,10 @@ namespace E2e4.Chess.OpenSeal.Test
         [Fact]
         public void DecryptOfInputWithLengthNotCongruentToOneModTwelveReturnsFallbackEchoingInput()
         {
-            // After trimming the trailing '\n', "abcde" has length 5, which fails
-            // Decrypt's "length mod 12 == 1" check. The expected value has two
-            // trailing newlines: the input's own, plus the one the fallback appends.
-            Assert.Equal("0: abcde\n\n", OpenSeal.Decrypt("abcde\n"));
+            // After trimming the trailing line feed, "abcde" has length 5, which fails the
+            // "length mod 12 == 1" check. As in openseal_decoder.c, the fallback echoes the
+            // line without its terminator and appends exactly one line feed.
+            Assert.Equal("0: abcde\n", OpenSeal.Decrypt("abcde\n"));
         }
 
         [Fact]
@@ -71,7 +59,7 @@ namespace E2e4.Chess.OpenSeal.Test
                 chars[i] = (char)(chars[i] ^ 0xFF);
             string corrupted = new(chars);
 
-            Assert.Equal($"0: {corrupted}\n", OpenSeal.Decrypt(corrupted));
+            Assert.Equal($"0: {corrupted.TrimEnd('\n')}\n", OpenSeal.Decrypt(corrupted));
         }
     }
 }

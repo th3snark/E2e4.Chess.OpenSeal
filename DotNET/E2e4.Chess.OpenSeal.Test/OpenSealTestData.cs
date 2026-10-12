@@ -20,6 +20,6 @@ namespace E2e4.Chess.OpenSeal.Test
             0x80, 0x0a,
         };
 
-        public static readonly Encoding Iso88591 = Encoding.GetEncoding("iso-8859-1");
+        public static readonly Encoding Iso88591 = Encoding.Latin1;
     }
 }
