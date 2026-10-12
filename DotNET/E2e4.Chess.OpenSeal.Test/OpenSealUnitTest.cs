@@ -28,7 +28,7 @@ namespace E2e4.Chess.OpenSeal.Test
         [Theory]
         [InlineData(null)]
         [InlineData("")]
-        public void DecryptOfNullOrEmptyInputReturnsZeroTimestampFallback(string input)
+        public void DecryptOfNullOrEmptyInputReturnsZeroTimestampFallback(string? input)
         {
             Assert.Equal($"0: {input}\n", OpenSeal.Decrypt(input));
         }
