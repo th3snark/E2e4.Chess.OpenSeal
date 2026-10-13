@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -13,7 +13,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\E2e4.Chess.OpenSeal\E2e4.Chess.OpenSeal.csproj" />
+    <ProjectReference Include="..\..\Libraries\E2e4.Chess.OpenSeal\E2e4.Chess.OpenSeal.csproj" />
   </ItemGroup>
 
 </Project>
