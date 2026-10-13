@@ -1,0 +1,31 @@
+name: Publish
+
+# Publishes E2e4.Chess.OpenSeal to nuget.org when a version tag is pushed, e.g. `git tag v1.0.1 && git push origin v1.0.1`.
+# Uses nuget.org Trusted Publishing: no API key is stored. The policy on nuget.org must name this workflow file (publish.yml).
+on:
+  push:
+    tags: [ 'v*' ]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # lets the job request a GitHub OIDC token for nuget.org
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: 10.0.x
+      - name: Test
+        run: dotnet test OpenSeal.slnx --configuration Release
+      - name: Pack
+        run: dotnet pack src/E2e4.Chess.OpenSeal/E2e4.Chess.OpenSeal.csproj --configuration Release --no-build -p:Version=${GITHUB_REF_NAME#v} --output artifacts
+      # Request the temporary key last: it is valid for one hour.
+      - name: NuGet login (OIDC to a temporary API key)
+        uses: NuGet/login@v1
+        id: login
+        with:
+          user: ${{ secrets.NUGET_USER }}
+      - name: NuGet push
+        run: dotnet nuget push artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate
