@@ -1,3 +1,12 @@
+/*
+ * MyOpenSeal --- a Windows (WinSock) port of OPENSEAL, an open-source replacement for timeseal.
+ *
+ * Derived from openseal.c by Marcello Mamino (vacaboja on FICS), distributed with FatICS:
+ *   https://github.com/gbtami/FatICS/blob/577f5ccf62352de721f3f7a57632059150fe7506/timeseal/openseal.c
+ * Upstream licence, which applies to this file too: GNU General Public License, version 2 or
+ * (at your option) any later version.
+ */
+
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
