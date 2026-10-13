@@ -1,0 +1,27 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = crlf
+insert_final_newline = true
+trim_trailing_whitespace = true
+
+[*.cs]
+indent_style = space
+indent_size = 4
+# Every file uses file-scoped namespaces; the build enforces it.
+csharp_style_namespace_declarations = file_scoped:warning
+
+[*.{xaml,xml}]
+indent_style = space
+indent_size = 4
+
+[*.{csproj,vcxproj,vcxproj.filters,props,targets,proj,nuspec,config,slnx}]
+indent_style = space
+indent_size = 2
+
+[*.{c,h,cpp,hpp,cc,cxx,hh,hxx}]
+indent_style = tab
+
+[*.md]
+trim_trailing_whitespace = false

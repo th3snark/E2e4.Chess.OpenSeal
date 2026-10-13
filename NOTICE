@@ -1,0 +1,7 @@
+E2e4.Chess.OpenSeal and native/MyOpenSeal are derived from openseal.c by Marcello Mamino (vacaboja on FICS),
+distributed with FatICS:
+
+  https://github.com/gbtami/FatICS/blob/577f5ccf62352de721f3f7a57632059150fe7506/timeseal/openseal.c
+
+openseal.c is licensed under the GNU General Public License, version 2 or (at your option) any later version.
+This repository is distributed under the same terms; see LICENSE.

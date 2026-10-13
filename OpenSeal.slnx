@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/E2e4.Chess.OpenSeal/E2e4.Chess.OpenSeal.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/E2e4.Chess.OpenSeal.Test/E2e4.Chess.OpenSeal.Test.csproj" />
+  </Folder>
+</Solution>

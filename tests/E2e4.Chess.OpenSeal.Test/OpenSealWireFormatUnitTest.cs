@@ -6,7 +6,7 @@ namespace E2e4.Chess.OpenSeal.Test;
 
 public class OpenSealWireFormatUnitTest
 {
-    // Golden vectors produced by an independent port of crypt() in openseal.c (see Native/REFERENCES.md)
+    // Golden vectors produced by an independent port of crypt() in openseal.c (see REFERENCES.md)
     // (the port also reproduces OpenSealTestData.Buffer1 exactly), for the fixed timestamp
     // OpenSealTestData.Timestamp1. They cover every padding remainder around a block boundary.
     public static TheoryData<string, string> GoldenVectors() => new()

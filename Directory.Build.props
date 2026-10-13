@@ -1,0 +1,15 @@
+<Project>
+
+  <PropertyGroup>
+    <Company>E2e4</Company>
+    <Authors>Th3Snark</Authors>
+    <Copyright>Copyright &#169; E2e4</Copyright>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <Deterministic>true</Deterministic>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>$(WarningsNotAsErrors);NU1901;NU1902;NU1903;NU1904</WarningsNotAsErrors>
+  </PropertyGroup>
+
+</Project>

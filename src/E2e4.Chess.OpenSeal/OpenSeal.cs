@@ -9,7 +9,7 @@ namespace E2e4.Chess.OpenSeal;
 /// <summary>
 /// The FICS "timeseal" obfuscation as implemented by openseal by Marcello Mamino (GPL v2 or later), as
 /// shipped in FatICS: https://github.com/gbtami/FatICS/blob/577f5ccf62352de721f3f7a57632059150fe7506/timeseal/openseal.c
-/// and openseal_decoder.c beside it (see Native/REFERENCES.md). This is not cryptography: it is a fixed-key
+/// and openseal_decoder.c beside it (see REFERENCES.md). This is not cryptography: it is a fixed-key
 /// XOR/shuffle that carries a client timestamp so the server can measure lag.
 /// </summary>
 public static class OpenSeal

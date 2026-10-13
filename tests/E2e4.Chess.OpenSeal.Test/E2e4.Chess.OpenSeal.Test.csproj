@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Libraries\E2e4.Chess.OpenSeal\E2e4.Chess.OpenSeal.csproj" />
+    <ProjectReference Include="..\..\src\E2e4.Chess.OpenSeal\E2e4.Chess.OpenSeal.csproj" />
   </ItemGroup>
 
 </Project>
