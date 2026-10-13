@@ -1,3 +1,5 @@
+Copyright (c) 2026 GitHub: th3snark (E2e4), for the C# port and packaging; openseal.c is credited below.
+
 E2e4.Chess.OpenSeal and native/MyOpenSeal are derived from openseal.c by Marcello Mamino (vacaboja on FICS),
 distributed with FatICS:
 

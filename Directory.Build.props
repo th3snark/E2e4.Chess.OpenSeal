@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <Company>E2e4</Company>
-    <Authors>Th3Snark</Authors>
-    <Copyright>Copyright &#169; E2e4</Copyright>
+    <Authors>th3snark</Authors>
+    <Copyright>Copyright &#169; 2026 GitHub: th3snark (E2e4)</Copyright>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Deterministic>true</Deterministic>
