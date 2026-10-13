@@ -20,7 +20,7 @@ jobs:
       - name: Test
         run: dotnet test OpenSeal.slnx --configuration Release
       - name: Pack
-        run: dotnet pack src/E2e4.Chess.OpenSeal/E2e4.Chess.OpenSeal.csproj --configuration Release --no-build -p:Version=${GITHUB_REF_NAME#v} --output artifacts
+        run: dotnet pack src/E2e4.Chess.OpenSeal/E2e4.Chess.OpenSeal.csproj --configuration Release -p:Version=${GITHUB_REF_NAME#v} --output artifacts
       # Request the temporary key last: it is valid for one hour.
       - name: NuGet login (OIDC to a temporary API key)
         uses: NuGet/login@v1
