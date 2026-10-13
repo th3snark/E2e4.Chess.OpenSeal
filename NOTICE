@@ -5,3 +5,5 @@ distributed with FatICS:
 
 openseal.c is licensed under the GNU General Public License, version 2 or (at your option) any later version.
 This repository is distributed under the same terms; see LICENSE.
+
+assets/icon.png is the E2e4 chess icon, the author's own artwork, distributed with this package under the same terms.
