@@ -8,7 +8,7 @@ public class OpenSealUnitTest
     [Fact]
     public void EncodeHelloMessageGivesCorrectByteArray()
     {
-        string str = OpenSeal.Encode(OpenSealTestData.Hello, OpenSealTestData.SystemTime1);
+        string str = OpenSealCipher.Encode(OpenSealTestData.Hello, OpenSealTestData.SystemTime1);
         byte[] strBuffer = OpenSealTestData.Iso88591.GetBytes(str);
 
         Assert.Equal(OpenSealTestData.Buffer1, strBuffer);
@@ -18,7 +18,7 @@ public class OpenSealUnitTest
     public void DecodeOfByteArrayGivesCorrectTimestampAndHelloMessage()
     {
         string strBuffer = OpenSealTestData.Iso88591.GetString(OpenSealTestData.Buffer1);
-        string plainText = OpenSeal.Decode(strBuffer);
+        string plainText = OpenSealCipher.Decode(strBuffer);
 
         string expectedText = $"{OpenSealTestData.Timestamp1}: {OpenSealTestData.Hello}\n";
         Assert.Equal(expectedText, plainText);
@@ -29,13 +29,13 @@ public class OpenSealUnitTest
     [InlineData("")]
     public void DecodeOfNullOrEmptyInputReturnsZeroTimestampFallback(string? input)
     {
-        Assert.Equal($"0: {input}\n", OpenSeal.Decode(input));
+        Assert.Equal($"0: {input}\n", OpenSealCipher.Decode(input));
     }
 
     [Fact]
     public void DecodeOfInputMissingTrailingLinefeedReturnsFallbackEchoingInput()
     {
-        Assert.Equal("0: abc\n", OpenSeal.Decode("abc"));
+        Assert.Equal("0: abc\n", OpenSealCipher.Decode("abc"));
     }
 
     [Fact]
@@ -44,7 +44,7 @@ public class OpenSealUnitTest
         // After trimming the trailing line feed, "abcde" has length 5, which fails the
         // "length mod 12 == 1" check. As in openseal_decoder.c, the fallback echoes the
         // line without its terminator and appends exactly one line feed.
-        Assert.Equal("0: abcde\n", OpenSeal.Decode("abcde\n"));
+        Assert.Equal("0: abcde\n", OpenSealCipher.Decode("abcde\n"));
     }
 
     [Fact]
@@ -58,6 +58,6 @@ public class OpenSealUnitTest
             chars[i] = (char)(chars[i] ^ 0xFF);
         string corrupted = new(chars);
 
-        Assert.Equal($"0: {corrupted.TrimEnd('\n')}\n", OpenSeal.Decode(corrupted));
+        Assert.Equal($"0: {corrupted.TrimEnd('\n')}\n", OpenSealCipher.Decode(corrupted));
     }
 }

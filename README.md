@@ -4,7 +4,7 @@ A C# implementation of the FICS (Free Internet Chess Server) timeseal/openseal e
 chess client tell the server when it sent each line, so the server can compensate for network lag.
 
 ```csharp
-string wire = OpenSeal.Encode("seek 5 0");   // wire text, ends "\x80\n"; send it as ISO-8859-1
+string wire = OpenSealCipher.Encode("seek 5 0");   // wire text, ends "\x80\n"; send it as ISO-8859-1
 ```
 
 Targets `net45`, `netstandard2.0`, `netstandard2.1` and `net10.0`. Install from NuGet: `E2e4.Chess.OpenSeal`.
@@ -28,7 +28,7 @@ An application that includes this package is distributed under the GPL.
 ```csharp
 sealed class OpenSealCodec : ITimesealCodec
 {
-    public string Encode(string line) => OpenSeal.Encode(line);
+    public string Encode(string line) => OpenSealCipher.Encode(line);
 }
 ```
 

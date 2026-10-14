@@ -34,7 +34,7 @@ public class OpenSealWireFormatUnitTest
     [MemberData(nameof(GoldenVectors))]
     public void EncodeMatchesTheCReferenceForEveryPaddingRemainder(string text, string expectedHex)
     {
-        Assert.Equal(Wire(expectedHex), OpenSeal.Encode(text, OpenSealTestData.SystemTime1));
+        Assert.Equal(Wire(expectedHex), OpenSealCipher.Encode(text, OpenSealTestData.SystemTime1));
     }
 
     [Theory]
@@ -44,7 +44,7 @@ public class OpenSealWireFormatUnitTest
     [InlineData("tell 1 hello there", "9b6c61697ba5a1ad75aca492d897c4ac777389bc62a87460a1a6beb6a3b0bcbcb4dd71b7800a")]
     public void DecodeOfTheCReferenceVectorsRecoversTimestampAndText(string text, string expectedHex)
     {
-        Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSeal.Decode(Wire(expectedHex)));
+        Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSealCipher.Decode(Wire(expectedHex)));
     }
 
     [Fact]
@@ -54,9 +54,9 @@ public class OpenSealWireFormatUnitTest
         {
             string text = new string((char)('!' + length % 90), length);
 
-            string sealedText = OpenSeal.Encode(text, OpenSealTestData.SystemTime1);
+            string sealedText = OpenSealCipher.Encode(text, OpenSealTestData.SystemTime1);
 
-            Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSeal.Decode(sealedText));
+            Assert.Equal($"{OpenSealTestData.Timestamp1}: {text}\n", OpenSealCipher.Decode(sealedText));
         }
     }
 
@@ -68,7 +68,7 @@ public class OpenSealWireFormatUnitTest
     [InlineData(30)]
     public void SealedMessagesHaveTheWireShape(int length)
     {
-        string sealedText = OpenSeal.Encode(new string('x', length), OpenSealTestData.SystemTime1);
+        string sealedText = OpenSealCipher.Encode(new string('x', length), OpenSealTestData.SystemTime1);
 
         Assert.EndsWith("\u0080\n", sealedText);
         Assert.Equal(2, sealedText.Length % 12);
@@ -79,7 +79,7 @@ public class OpenSealWireFormatUnitTest
     [Fact]
     public void LiveTimestampsRoundTripThroughTheSystemClock()
     {
-        string decoded = OpenSeal.Decode(OpenSeal.Encode("ping"));
+        string decoded = OpenSealCipher.Decode(OpenSealCipher.Encode("ping"));
 
         Assert.Matches(@"^[0-9]+: ping\n$", decoded);
     }
@@ -89,23 +89,23 @@ public class OpenSealWireFormatUnitTest
     {
         // The scheme is 7-bit: Encode ORs 0x80 into every character, so the decoder cannot
         // tell 0xE9 from 0x69. This is inherited from the C reference and pinned here.
-        string sealedText = OpenSeal.Encode("caf\u00E9", OpenSealTestData.SystemTime1);
+        string sealedText = OpenSealCipher.Encode("caf\u00E9", OpenSealTestData.SystemTime1);
 
-        Assert.Equal($"{OpenSealTestData.Timestamp1}: cafi\n", OpenSeal.Decode(sealedText));
+        Assert.Equal($"{OpenSealTestData.Timestamp1}: cafi\n", OpenSealCipher.Decode(sealedText));
     }
 
     [Fact]
     public void EncodeReplacesCharactersAboveLatin1WithQuestionMarks()
     {
-        string sealedText = OpenSeal.Encode("a\u20ACb", OpenSealTestData.SystemTime1);
+        string sealedText = OpenSealCipher.Encode("a\u20ACb", OpenSealTestData.SystemTime1);
 
-        Assert.Equal($"{OpenSealTestData.Timestamp1}: a?b\n", OpenSeal.Decode(sealedText));
+        Assert.Equal($"{OpenSealTestData.Timestamp1}: a?b\n", OpenSealCipher.Decode(sealedText));
     }
 
     [Fact]
     public void EncodeRejectsNull()
     {
-        Assert.Throws<ArgumentNullException>(() => OpenSeal.Encode(null!));
+        Assert.Throws<ArgumentNullException>(() => OpenSealCipher.Encode(null!));
     }
 
     [Theory]
@@ -113,18 +113,18 @@ public class OpenSealWireFormatUnitTest
     [InlineData("x\u0018y")]        // stray timestamp marker in the message
     public void MessagesContainingControlCharactersAreNotReadBackAsValid(string text)
     {
-        string sealedText = OpenSeal.Encode(text, OpenSealTestData.SystemTime1);
+        string sealedText = OpenSealCipher.Encode(text, OpenSealTestData.SystemTime1);
 
-        Assert.False(OpenSeal.TryDecode(sealedText, out _, out _));
-        Assert.Equal($"0: {sealedText.TrimEnd('\n')}\n", OpenSeal.Decode(sealedText));
+        Assert.False(OpenSealCipher.TryDecode(sealedText, out _, out _));
+        Assert.Equal($"0: {sealedText.TrimEnd('\n')}\n", OpenSealCipher.Decode(sealedText));
     }
 
     [Fact]
     public void TryDecodeReturnsTimestampAndMessage()
     {
-        string sealedText = OpenSeal.Encode("tell 1 hi", OpenSealTestData.SystemTime1);
+        string sealedText = OpenSealCipher.Encode("tell 1 hi", OpenSealTestData.SystemTime1);
 
-        Assert.True(OpenSeal.TryDecode(sealedText, out string? timestamp, out string? message));
+        Assert.True(OpenSealCipher.TryDecode(sealedText, out string? timestamp, out string? message));
         Assert.Equal(OpenSealTestData.Timestamp1.ToString(), timestamp);
         Assert.Equal("tell 1 hi", message);
     }
@@ -139,7 +139,7 @@ public class OpenSealWireFormatUnitTest
     [InlineData("aaaaaaaaaaaa\u20AC\n")]        // not a byte stream
     public void TryDecodeRejectsMalformedInputWithoutThrowing(string? input)
     {
-        Assert.False(OpenSeal.TryDecode(input!, out string? timestamp, out string? message));
+        Assert.False(OpenSealCipher.TryDecode(input!, out string? timestamp, out string? message));
         Assert.Null(timestamp);
         Assert.Null(message);
     }
@@ -151,6 +151,6 @@ public class OpenSealWireFormatUnitTest
     [InlineData("", "0: \n")]
     public void DecodeFallbackEchoesTheLineWithASingleTerminator(string input, string expected)
     {
-        Assert.Equal(expected, OpenSeal.Decode(input));
+        Assert.Equal(expected, OpenSealCipher.Decode(input));
     }
 }

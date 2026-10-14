@@ -12,7 +12,7 @@ namespace E2e4.Chess.OpenSeal;
 /// and openseal_decoder.c beside it (see REFERENCES.md). This is not cryptography: it is a fixed-key
 /// XOR/shuffle that carries a client timestamp so the server can measure lag.
 /// </summary>
-public static class OpenSeal
+public static class OpenSealCipher
 {
     private const string Key = "Timestamp (FICS) v1.0 - programmed by Henrik Gram.";
 
