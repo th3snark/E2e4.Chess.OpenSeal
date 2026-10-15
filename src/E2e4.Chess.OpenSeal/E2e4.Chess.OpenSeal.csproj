@@ -7,8 +7,8 @@
     <PackageLicenseExpression>GPL-2.0-or-later</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
-    <PackageProjectUrl>https://github.com/th3snark/OpenSeal</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/th3snark/OpenSeal</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/th3snark/E2e4.Chess.OpenSeal</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/th3snark/E2e4.Chess.OpenSeal</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <IncludeSymbols>true</IncludeSymbols>

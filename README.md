@@ -14,7 +14,7 @@ Public API: `OpenSealCipher.Encode`, `Decode` and `TryDecode`.
 ## Licence
 
 GNU General Public License, version 2 or (at your option) any later version. This code is derived from
-`timeseal/openseal.c` by Marcello Mamino, distributed with FatICS; see [NOTICE](https://github.com/th3snark/OpenSeal/blob/master/NOTICE) and [REFERENCES.md](https://github.com/th3snark/OpenSeal/blob/master/REFERENCES.md).
+`timeseal/openseal.c` by Marcello Mamino, distributed with FatICS; see [NOTICE](https://github.com/th3snark/E2e4.Chess.OpenSeal/blob/master/NOTICE) and [REFERENCES.md](https://github.com/th3snark/E2e4.Chess.OpenSeal/blob/master/REFERENCES.md).
 An application that includes this package is distributed under the GPL.
 
 ## Layout
