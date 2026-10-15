@@ -1,5 +1,7 @@
 # E2e4.Chess.OpenSeal
 
+<img src="assets/icon.png" alt="E2e4.Chess.OpenSeal icon" width="96" height="96" align="right">
+
 A C# implementation of the FICS (Free Internet Chess Server) timeseal/openseal encoder: the cipher that lets a
 chess client tell the server when it sent each line, so the server can compensate for network lag.
 
