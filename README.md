@@ -37,7 +37,7 @@ sealed class OpenSealCodec : ITimesealCodec
 ## Build and test
 
 ```
-dotnet test OpenSeal.slnx
+dotnet test E2e4.Chess.OpenSeal.slnx
 ```
 
 Releases: push a `vX.Y.Z` tag and `publish.yml` tests, packs and pushes to nuget.org.

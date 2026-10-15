@@ -30,8 +30,8 @@ jobs:
           cache-dependency-path: Directory.Packages.props
       - name: Check formatting
         if: runner.os == 'Windows'
-        run: dotnet format whitespace OpenSeal.slnx --verify-no-changes
+        run: dotnet format whitespace E2e4.Chess.OpenSeal.slnx --verify-no-changes
       - name: Test
-        run: dotnet test OpenSeal.slnx --configuration Release
+        run: dotnet test E2e4.Chess.OpenSeal.slnx --configuration Release
       - name: Pack
         run: dotnet pack src/E2e4.Chess.OpenSeal/E2e4.Chess.OpenSeal.csproj --configuration Release --no-build

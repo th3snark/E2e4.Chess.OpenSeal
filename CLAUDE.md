@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ```
-dotnet test OpenSeal.slnx                                   # build + all tests (CI runs this with --configuration Release)
+dotnet test E2e4.Chess.OpenSeal.slnx                                   # build + all tests (CI runs this with --configuration Release)
 dotnet test tests/E2e4.Chess.OpenSeal.Test --filter "FullyQualifiedName~OpenSealWireFormatUnitTest"   # one test class
 dotnet pack src/E2e4.Chess.OpenSeal/E2e4.Chess.OpenSeal.csproj --configuration Release
 ```
