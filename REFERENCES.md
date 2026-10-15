@@ -9,4 +9,4 @@ git clone https://github.com/gbtami/FatICS && git -C FatICS checkout 577f5ccf623
 ```
 
 If the protocol logic in `src/` changes, check whether `native/MyOpenSeal` needs the equivalent change.
-This repository was split out of <https://github.com/th3snark/MyChess>, and its history up to the split is preserved.
+This repository was split out of <https://github.com/th3snark/E2e4.Chess>, and its history up to the split is preserved.

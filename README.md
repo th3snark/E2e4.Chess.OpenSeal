@@ -25,7 +25,7 @@ An application that includes this package is distributed under the GPL.
 
 ## Use with E2e4.Chess.Fics.Client
 
-[MyChess](https://github.com/th3snark/MyChess)'s `E2e4.Chess.Fics.Client` takes an `ITimesealCodec`; the adapter is one line:
+[E2e4.Chess](https://github.com/th3snark/E2e4.Chess)'s `E2e4.Chess.Fics.Client` takes an `ITimesealCodec`; the adapter is one line:
 
 ```csharp
 sealed class OpenSealCodec : ITimesealCodec

@@ -24,15 +24,15 @@ Releases: push a `vX.Y.Z` tag; `publish.yml` tests, packs with `-p:Version=<tag 
 - `native/MyOpenSeal`: Win32 C reference port, not part of the .NET build (needs MSBuild with C++ toolset).
 - Tests (xunit, net10.0 only) use golden byte vectors from a port of `crypt()` in `OpenSealTestData.cs`; changes to the algorithm must keep them passing.
 
-## Consumer: MyChess (sibling repo `../MyChess`)
+## Consumer: E2e4.Chess (sibling repo `../E2e4.Chess`)
 
-`MyChess` (MIT) is the only known consumer; it references this package as `E2e4.Chess.OpenSeal` (pinned in `MyChess/Directory.Packages.props`, currently 2.0.0).
+`E2e4.Chess` (MIT) is the only known consumer; it references this package as `E2e4.Chess.OpenSeal` (pinned in `E2e4.Chess/Directory.Packages.props`, currently 2.0.0).
 
-- **Licensing boundary:** this package is GPL; MyChess keeps it out of its libraries. Only `E2e4.Chess.Fics.Client.Demo` references it, via an `OpenSealCodec : ITimesealCodec` adapter (`Encode(line) => OpenSealCipher.Encode(line)`), so only a built demo is GPL. `E2e4.Chess.Fics.Client` takes the codec through `FicsClientOptions.Timeseal` (null = plain lines). Do not change this package in a way that requires MyChess libraries to depend on it.
-- **Contract MyChess relies on:** `Encode` returns the full wire text including the `\x80\n` terminator, as a Latin-1 string; MyChess sends it as ISO-8859-1 bytes (`FicsLineEncoder`) and appends `\n` itself only when no codec is set. Changing the output shape, terminator, or character range breaks it.
-- **How MyChess uses it:** after connecting, it sends the hello line `TIMESTAMP|openseal|Running on an operating system|` through the codec (the same string as `Hello` in `OpenSealTestData.cs`), then every outbound line, and answers each server `[G]` ping with the encoded reply `\x02` + `9`. Its tests use a fake codec (`SEAL:` + line + `\x80\n`), not this library, so a break here will not show up in MyChess's test suite.
-- **Release flow:** a tag here publishes to nuget.org; MyChess then bumps the version in its `Directory.Packages.props`.
-- `REFERENCES.md` in MyChess points at this repo for the C# openseal port and documents the FatICS commit (`577f5ccf...`) the algorithm derives from; this repo's `REFERENCES.md` carries its own copy, so keep the two consistent.
+- **Licensing boundary:** this package is GPL; E2e4.Chess keeps it out of its libraries. Only `E2e4.Chess.Fics.Client.Demo` references it, via an `OpenSealCodec : ITimesealCodec` adapter (`Encode(line) => OpenSealCipher.Encode(line)`), so only a built demo is GPL. `E2e4.Chess.Fics.Client` takes the codec through `FicsClientOptions.Timeseal` (null = plain lines). Do not change this package in a way that requires E2e4.Chess libraries to depend on it.
+- **Contract E2e4.Chess relies on:** `Encode` returns the full wire text including the `\x80\n` terminator, as a Latin-1 string; E2e4.Chess sends it as ISO-8859-1 bytes (`FicsLineEncoder`) and appends `\n` itself only when no codec is set. Changing the output shape, terminator, or character range breaks it.
+- **How E2e4.Chess uses it:** after connecting, it sends the hello line `TIMESTAMP|openseal|Running on an operating system|` through the codec (the same string as `Hello` in `OpenSealTestData.cs`), then every outbound line, and answers each server `[G]` ping with the encoded reply `\x02` + `9`. Its tests use a fake codec (`SEAL:` + line + `\x80\n`), not this library, so a break here will not show up in E2e4.Chess's test suite.
+- **Release flow:** a tag here publishes to nuget.org; E2e4.Chess then bumps the version in its `Directory.Packages.props`.
+- `REFERENCES.md` in E2e4.Chess points at this repo for the C# openseal port and documents the FatICS commit (`577f5ccf...`) the algorithm derives from; this repo's `REFERENCES.md` carries its own copy, so keep the two consistent.
 
 ## Build constraints
 
