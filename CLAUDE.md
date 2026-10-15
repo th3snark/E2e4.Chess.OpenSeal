@@ -36,6 +36,7 @@ Releases: push a `vX.Y.Z` tag; `publish.yml` tests, packs with `-p:Version=<tag 
 
 ## Build constraints
 
+- `assets/icon.png` (and its source `assets/icon.svg`) is generated, not hand-drawn: it is the E2e4.Chess base icon plus this package's badge, built by `Branding/Build-Icons.ps1` in the E2e4.Chess repository. Change the icon there and copy the files from `Branding/dist`.
 - Library multi-targets `net45;netstandard2.0;netstandard2.1;net10.0`, so avoid APIs missing from net45/netstandard2.0 (use `Substring`, not ranges; add polyfills only as internal types).
 - `Directory.Build.props` enables `Nullable`, `AnalysisLevel latest-recommended`, `GenerateDocumentationFile`, `TreatWarningsAsErrors` and `EnforceCodeStyleInBuild` (style violations in `.editorconfig` break the build). NuGet versions are centrally managed in `Directory.Packages.props`.
 - `E2e4.Chess.OpenSeal.csproj` sets `NoWarn` CA1510 on purpose: `ArgumentNullException.ThrowIfNull` does not exist on net45/netstandard2.0.
