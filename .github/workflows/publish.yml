@@ -9,6 +9,7 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
       id-token: write  # lets the job request a GitHub OIDC token for nuget.org
@@ -17,6 +18,12 @@ jobs:
       - uses: actions/setup-dotnet@v6
         with:
           dotnet-version: 10.0.x
+      - name: Check the tag is a version
+        run: |
+          if ! [[ "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+            echo "Tag $GITHUB_REF_NAME is not of the form vX.Y.Z"
+            exit 1
+          fi
       - name: Test
         run: dotnet test OpenSeal.slnx --configuration Release
       - name: Pack
@@ -27,5 +34,6 @@ jobs:
         id: login
         with:
           user: ${{ secrets.NUGET_USER }}
+      # Pushing the .nupkg also pushes the .snupkg symbol package beside it.
       - name: NuGet push
         run: dotnet nuget push artifacts/*.nupkg --api-key ${{ steps.login.outputs.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json --skip-duplicate

@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text;
 using Xunit;
 
@@ -125,7 +126,7 @@ public class OpenSealWireFormatUnitTest
         string sealedText = OpenSealCipher.Encode("tell 1 hi", OpenSealTestData.SystemTime1);
 
         Assert.True(OpenSealCipher.TryDecode(sealedText, out string? timestamp, out string? message));
-        Assert.Equal(OpenSealTestData.Timestamp1.ToString(), timestamp);
+        Assert.Equal(OpenSealTestData.Timestamp1.ToString(CultureInfo.InvariantCulture), timestamp);
         Assert.Equal("tell 1 hi", message);
     }
 
@@ -152,5 +153,82 @@ public class OpenSealWireFormatUnitTest
     public void DecodeFallbackEchoesTheLineWithASingleTerminator(string input, string expected)
     {
         Assert.Equal(expected, OpenSealCipher.Decode(input));
+    }
+
+    private const string Key = "Timestamp (FICS) v1.0 - programmed by Henrik Gram.";
+
+    /// <summary>
+    /// An independent sealer for arbitrary plain text (markers included) and any key offset, written from the
+    /// C crypt() rather than from the library, so the decoder is tested on input the encoder never produces.
+    /// </summary>
+    private static string Seal(string plain, int keyOffset)
+    {
+        int length = (plain.Length + 11) / 12 * 12;
+        char[] buffer = new char[length + 2];
+        for (int i = 0; i < length; i++)
+            buffer[i] = i < plain.Length ? plain[i] : '1';
+
+        for (int n = 0; n < length; n += 12)
+        {
+            (buffer[n], buffer[n + 11]) = (buffer[n + 11], buffer[n]);
+            (buffer[n + 2], buffer[n + 9]) = (buffer[n + 9], buffer[n + 2]);
+            (buffer[n + 4], buffer[n + 7]) = (buffer[n + 7], buffer[n + 4]);
+        }
+
+        for (int n = 0; n < length; n++)
+            buffer[n] = (char)((((buffer[n] | 0x80) ^ Key[(n + keyOffset - 0x80) % Key.Length]) - 32) & 0xFF);
+
+        buffer[length] = (char)keyOffset;
+        buffer[length + 1] = '\n';
+        return new string(buffer);
+    }
+
+    [Fact]
+    public void TheIndependentSealerReproducesTheEncoderAtTheStandardOffset()
+    {
+        string plain = "tell 1 hi\u0018" + OpenSealTestData.Timestamp1 + "\u0019";
+
+        Assert.Equal(OpenSealCipher.Encode("tell 1 hi", OpenSealTestData.SystemTime1), Seal(plain, 0x80));
+    }
+
+    [Theory]
+    [InlineData(0x80)]
+    [InlineData(0x81)]
+    [InlineData(0xB1)]      // 0x80 + the key length: wraps back to the start of the key
+    [InlineData(0xDF)]      // the largest offset whose own character still decodes (0xE0 and up lose the high bit)
+    public void DecodeHonoursTheKeyOffsetCarriedInTheLastCharacter(int keyOffset)
+    {
+        string sealedText = Seal("tell 1 hi\u00181234\u0019", keyOffset);
+
+        Assert.True(OpenSealCipher.TryDecode(sealedText, out string? timestamp, out string? message));
+        Assert.Equal("1234", timestamp);
+        Assert.Equal("tell 1 hi", message);
+    }
+
+    [Theory]
+    [InlineData("hi\u0018\u0019")]              // empty timestamp: the C strtol check accepts it, the decoder does not
+    [InlineData("hi\u001812a4\u0019")]          // not all digits
+    [InlineData("hi\u0018-12\u0019")]           // a sign is not a digit
+    [InlineData("hi\u0018123")]                 // no closing marker
+    [InlineData("hi 123\u0019")]                // no opening marker
+    public void DecodeRejectsAMalformedTimestampSection(string plain)
+    {
+        Assert.False(OpenSealCipher.TryDecode(Seal(plain, 0x80), out _, out _));
+    }
+
+    [Fact]
+    public void DecodeIgnoresTheFillerAfterTheTimestamp()
+    {
+        Assert.True(OpenSealCipher.TryDecode(Seal("hi\u001812\u0019junk, not just padding", 0x80), out string? timestamp, out string? message));
+        Assert.Equal("12", timestamp);
+        Assert.Equal("hi", message);
+    }
+
+    [Fact]
+    public void EncodeSendsAStringOfSurrogatePairsAsOneQuestionMarkPerUtf16Unit()
+    {
+        string sealedText = OpenSealCipher.Encode("😀", OpenSealTestData.SystemTime1);
+
+        Assert.Equal($"{OpenSealTestData.Timestamp1}: ??\n", OpenSealCipher.Decode(sealedText));
     }
 }

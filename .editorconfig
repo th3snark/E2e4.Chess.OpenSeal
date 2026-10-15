@@ -12,15 +12,11 @@ indent_size = 4
 # Every file uses file-scoped namespaces; the build enforces it.
 csharp_style_namespace_declarations = file_scoped:warning
 
-[*.{xaml,xml}]
-indent_style = space
-indent_size = 4
-
-[*.{csproj,vcxproj,vcxproj.filters,props,targets,proj,nuspec,config,slnx}]
+[*.{csproj,vcxproj,vcxproj.filters,props,targets,proj,nuspec,config,slnx,yml}]
 indent_style = space
 indent_size = 2
 
-[*.{c,h,cpp,hpp,cc,cxx,hh,hxx}]
+[*.{c,h}]
 indent_style = tab
 
 [*.md]

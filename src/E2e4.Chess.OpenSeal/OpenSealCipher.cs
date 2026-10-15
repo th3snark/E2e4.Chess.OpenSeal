@@ -85,15 +85,13 @@ public static class OpenSealCipher
     /// <param name="s">The sealed line including its terminating line feed.</param>
     public static string Decode(string? s)
     {
-        string? timestamp;
-        string? message;
-        if (TryDecode(s, out timestamp, out message))
+        if (TryDecode(s, out string? timestamp, out string? message))
         {
             return timestamp + ": " + message + "\n";
         }
 
         string line = s ?? string.Empty;
-        if (line.EndsWith("\n", StringComparison.Ordinal))
+        if (line.Length > 0 && line[line.Length - 1] == '\n')
         {
             line = line.Substring(0, line.Length - 1);
         }

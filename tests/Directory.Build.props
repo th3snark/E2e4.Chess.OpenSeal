@@ -4,6 +4,8 @@
 
   <PropertyGroup>
     <IsPackable>false</IsPackable>
+    <!-- Test names are the documentation; do not demand XML comments on them. -->
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

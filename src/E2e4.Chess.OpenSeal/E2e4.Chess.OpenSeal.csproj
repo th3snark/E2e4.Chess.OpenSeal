@@ -7,13 +7,19 @@
     <PackageLicenseExpression>GPL-2.0-or-later</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
+    <PackageProjectUrl>https://github.com/th3snark/OpenSeal</PackageProjectUrl>
     <RepositoryUrl>https://github.com/th3snark/OpenSeal</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <!-- ArgumentNullException.ThrowIfNull needs .NET 6; this library still targets net45 and netstandard2.0. -->
+    <NoWarn>$(NoWarn);CA1510</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <None Include="..\..\README.md" Pack="true" PackagePath="\" />
-    <None Include="../../assets/icon.png" Pack="true" PackagePath="\" />
+    <None Include="..\..\assets\icon.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>
