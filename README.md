@@ -26,7 +26,7 @@ An application that includes this package is distributed under the GPL.
 
 - `src/E2e4.Chess.OpenSeal` - the library.
 - `tests/E2e4.Chess.OpenSeal.Test` - unit tests, including golden vectors from a port of `crypt()` in `openseal.c`.
-- `native/MyOpenSeal` - a Win32 (WinSock) C port of openseal, kept as a reference. It needs MSBuild with a Visual Studio C++ toolset.
+- `native/MyOpenSeal` - a Win32 C port of openseal (a self-test harness; WinSock is used only for `struct timeval`), kept as a reference. It needs MSBuild with a Visual Studio C++ toolset.
 
 ## Use with E2e4.Chess.Fics.Client
 
