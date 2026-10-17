@@ -13,6 +13,9 @@ Targets `net45`, `netstandard2.0`, `netstandard2.1` and `net10.0`. Install from 
 
 Public API: `OpenSealCipher.Encode`, `Decode` and `TryDecode`.
 
+The wire format carries 7-bit ASCII only: characters above U+00FF are sent as `?`, and U+0080 to U+00FF reach the
+server with their high bit cleared (so `é` arrives as `i`). Strip or transliterate other text before sealing it.
+
 ## Licence
 
 GNU General Public License, version 2 or (at your option) any later version. This code is derived from

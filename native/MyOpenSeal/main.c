@@ -5,6 +5,9 @@
  *   https://github.com/gbtami/FatICS/blob/577f5ccf62352de721f3f7a57632059150fe7506/timeseal/openseal.c
  * Upstream licence, which applies to this file too: GNU General Public License, version 2 or
  * (at your option) any later version.
+ *
+ * This is a self-test harness for the C# port, not a library: crypt/crypt2 write into the caller's
+ * buffer without a bound, so never feed them untrusted input.
  */
 
 #ifdef _MSC_VER
@@ -80,8 +83,8 @@ int decrypt(char *s)
 	int n, offset, l = strlen(s);
 	char *tmp_time, *tmp_end, *num_end;
 	static char tmp[BSIZE];
-	// first a consistency check
-	if (l % 12 != 1) goto malformed_message;
+	// first a consistency check; tmp holds l bytes plus the terminator, so longer input must not be copied
+	if (l >= BSIZE || l % 12 != 1) goto malformed_message;
 	// we need this one...
 	offset = (unsigned char)s[l - 1];
 	// decode the string
