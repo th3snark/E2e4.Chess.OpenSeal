@@ -47,8 +47,17 @@ public static class OpenSealCipher
     /// the protocol is meant for 7-bit ASCII text.
     /// </summary>
     /// <param name="text">The text to seal, without its line terminator.</param>
+    public static string Encode(string text)
+    {
+        return Encode(text, 0);
+    }
+
+    /// <summary>
+    /// Seals a line of text like <see cref="Encode(string)"/>, taking the timestamp from a fixed time so tests are deterministic.
+    /// </summary>
+    /// <param name="text">The text to seal, without its line terminator.</param>
     /// <param name="systemTime">A Windows file time to take the timestamp from, or 0 for now.</param>
-    public static string Encode(string text, long systemTime = 0)
+    internal static string Encode(string text, long systemTime)
     {
         if (text == null)
         {

@@ -6,8 +6,8 @@
  * Upstream licence, which applies to this file too: GNU General Public License, version 2 or
  * (at your option) any later version.
  *
- * This is a self-test harness for the C# port, not a library: crypt/crypt2 write into the caller's
- * buffer without a bound, so never feed them untrusted input.
+ * This is a self-test harness for the C# port, not a library: seal() writes into the caller's
+ * buffer without a bound, so never feed it untrusted input.
  */
 
 #ifdef _MSC_VER
@@ -16,30 +16,25 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-//#include <sys/time.h>
 #include <time.h>
 #include <sys/types.h>
-//#include <sys/socket.h>
 #include <WinSock2.h>
-//#include <netdb.h>
 #include <string.h>
-//#include <sys/select.h>
 
-int gettimeofday(struct timeval *tv, struct timezone *tz);
-int gettimeofday2(struct timeval *tv, struct timezone *tz, unsigned __int64 testVal);
+void gettimeofday_at(struct timeval *tv, unsigned __int64 fileTime);
 
 #define BSIZE 1024
 
 char *key = "Timestamp (FICS) v1.0 - programmed by Henrik Gram.";
-//char hello[100]="TIMESTAMP|javaboard|Blackdown Java-Linux Team 1.3.1 Linux|";
 char hello[100] = "TIMESTAMP|openseal|Running on an operating system|";
 
-int crypt(char *s, int l)
+/* Seals s (l bytes of text) in place with the timestamp taken from fileTime (0 = now); returns the new length. */
+int seal(char *s, int l, unsigned __int64 fileTime)
 {
 	int n;
 	struct timeval tv;
 	s[l++] = '\x18';
-	gettimeofday(&tv, NULL);
+	gettimeofday_at(&tv, fileTime);
 	l += sprintf(&s[l], "%ld", (tv.tv_sec % 10000) * 1000 + tv.tv_usec / 1000);
 	s[l++] = '\x19';
 	for (; l % 12; l++)
@@ -47,29 +42,6 @@ int crypt(char *s, int l)
 #define SC(A,B) s[B]^=s[A]^=s[B],s[A]^=s[B]
 	for (n = 0; n < l; n += 12)
 		SC(n, n + 11), SC(n + 2, n + 9), SC(n + 4, n + 7);
-	for (n = 0; n < l; n++)
-		s[n] = ((s[n] | 0x80) ^ key[n % 50]) - 32;
-	s[l++] = '\x80';
-	s[l++] = '\x0a';
-	return l;
-}
-
-int crypt2(char *s, int l, unsigned __int64 testVal)
-{
-	int n;
-	struct timeval tv;
-	s[l++] = '\x18';
-	//gettimeofday(&tv, NULL);
-	gettimeofday2(&tv, NULL, testVal);
-	l += sprintf(&s[l], "%ld", (tv.tv_sec % 10000) * 1000 + tv.tv_usec / 1000);
-	s[l++] = '\x19';
-	for (; l % 12; l++)
-		s[l] = '1';
-
-#define SC(A,B) s[B]^=s[A]^=s[B],s[A]^=s[B]
-	for (n = 0; n < l; n += 12)
-		SC(n, n + 11), SC(n + 2, n + 9), SC(n + 4, n + 7);
-
 	for (n = 0; n < l; n++)
 		s[n] = ((s[n] | 0x80) ^ key[n % 50]) - 32;
 
@@ -124,103 +96,29 @@ malformed_message:
 
 //----------------------------------------------
 
-#if defined(_MSC_VER) || defined(_MSC_EXTENSIONS)
-//#define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
-#define DELTA_EPOCH_IN_MICROSECS  116444736000000000Ui64
-//                                116444736000000000
-//                                116444736000000000
-#else
-#define DELTA_EPOCH_IN_MICROSECS  11644473600000000ULL
-#define DELTA_EPOCH_IN_MICROSECS  11644473600000000Ui64
-
-#endif
-
-#define FILETIME_UNITS_PER_SEC	10000000L
+/* The number of 100 ns FILETIME units between 1601-01-01 and 1970-01-01. */
+#define DELTA_EPOCH_IN_FILETIME_UNITS  116444736000000000ULL
 #define FILETIME_UNITS_PER_USEC 10
 
-struct timezone
-{
-	int  tz_minuteswest; /* minutes W of Greenwich */
-	int  tz_dsttime;     /* type of dst correction */
-};
-
-int gettimeofday(struct timeval *tv, struct timezone *tz)
+/* Fills tv from a Windows file time (100 ns units since 1601), or from the clock when fileTime is 0. */
+void gettimeofday_at(struct timeval *tv, unsigned __int64 fileTime)
 {
 	FILETIME ft;
-	unsigned __int64 tmpres = 0;
-	static int tzflag;
+	unsigned __int64 tmpres = fileTime;
 
-	if (NULL != tv)
+	if (tmpres == 0)
 	{
-		//The FILETIME structure is a 64 - bit value representing the number of 100 - nanosecond
-		//intervals since January 1, 1601
 		GetSystemTimeAsFileTime(&ft);
 		tmpres |= ft.dwHighDateTime;
 		tmpres <<= 32;
 		tmpres |= ft.dwLowDateTime;
-
-		tmpres -= DELTA_EPOCH_IN_MICROSECS; //converting file time to unix epoch
-		tmpres /= FILETIME_UNITS_PER_USEC;  //convert into microseconds
-
-		tv->tv_sec = (long)(tmpres / 1000000UL);
-		tv->tv_usec = (long)(tmpres % 1000000UL);
-
-		return 0;
 	}
 
-	if (NULL != tz)
-	{
-		if (!tzflag)
-		{
-			_tzset();
-			tzflag++;
-		}
-		tz->tz_minuteswest = _timezone / 60;
-		tz->tz_dsttime = _daylight;
-	}
+	tmpres -= DELTA_EPOCH_IN_FILETIME_UNITS; //converting file time to unix epoch
+	tmpres /= FILETIME_UNITS_PER_USEC;       //convert into microseconds
 
-	return 0;
-}
-
-int gettimeofday2(struct timeval *tv, struct timezone *tz, unsigned __int64 testVal)
-{
-	FILETIME ft;
-	unsigned __int64 tmpres = testVal;
-	static int tzflag;
-
-	if (NULL != tv)
-	{
-		if (tmpres == 0)
-		{
-			//The FILETIME structure is a 64 - bit value representing the number of 100 - nanosecond
-			//intervals since January 1, 1601
-			GetSystemTimeAsFileTime(&ft);
-			tmpres |= ft.dwHighDateTime;
-			tmpres <<= 32;
-			tmpres |= ft.dwLowDateTime;
-		}
-
-		tmpres -= DELTA_EPOCH_IN_MICROSECS; //converting file time to unix epoch
-		tmpres /= FILETIME_UNITS_PER_USEC;  //convert into microseconds
-
-		tv->tv_sec = (long)(tmpres / 1000000UL);
-		tv->tv_usec = (long)(tmpres % 1000000UL);
-
-		return 0;
-	}
-
-	if (NULL != tz)
-	{
-		if (!tzflag)
-		{
-			_tzset();
-			tzflag++;
-		}
-		tz->tz_minuteswest = _timezone / 60;
-		tz->tz_dsttime = _daylight;
-	}
-
-	return 0;
+	tv->tv_sec = (long)(tmpres / 1000000UL);
+	tv->tv_usec = (long)(tmpres % 1000000UL);
 }
 //----------------------------------------------
 
@@ -228,22 +126,18 @@ int main(int argc, char **argv)
 {
 	unsigned __int64 testSystemTime = 130770708791546526UL;
 
-	//printf("GetSystemTimeAsFileTime()\r\n");
-	//FILETIME ft;
-	//GetSystemTimeAsFileTime(&ft);
-	//printf("ft.dwHighDateTime = %ld\r\n", ft.dwHighDateTime);
-	//printf("ft.dwLowDateTime = %ld\r\n", ft.dwLowDateTime);
-
 	struct timeval tv;
-	gettimeofday2(&tv, NULL, testSystemTime);
-	printf("tv.tv_sec = %ld\r\n", tv.tv_sec);
-	printf("tv.tv_usec = %ld\r\n", tv.tv_usec);
+	gettimeofday_at(&tv, testSystemTime);
+	printf("tv.tv_sec = %ld
+", tv.tv_sec);
+	printf("tv.tv_usec = %ld
+", tv.tv_usec);
 
-	long n = crypt2(hello, strlen(hello), testSystemTime);
-
+	seal(hello, strlen(hello), testSystemTime);
 
 	int l = strlen(hello);
-	if (!l || hello[l - 1] != '\n') return 1;
+	if (!l || hello[l - 1] != '
+') return 1;
 	hello[l - 1] = 0;
 	decrypt(hello);
 
