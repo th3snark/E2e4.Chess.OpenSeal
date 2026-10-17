@@ -19,7 +19,7 @@ Releases: push a `vX.Y.Z` tag; `publish.yml` tests, packs with `-p:Version=<tag 
 ## Architecture
 
 - `src/E2e4.Chess.OpenSeal/OpenSealCipher.cs`: the whole public API (static class `OpenSealCipher`) (`Encode`, `Decode`, `TryDecode`). Wire format: `text + \x18 + timestamp + \x19`, padded with `'1'` to a multiple of 12, each 12-block shuffled (three symmetric swaps; self-inverse), then `((c|0x80) ^ Key[n % keyLen]) - 32`, then a `\x80` key-offset char and `\n`. Strings are Latin-1; chars above U+00FF become `?`. `TryDecode` is deliberately slightly stricter than the C decoder (see its remarks).
-- `Helpers/TimeHelper.cs` (internal): converts a Windows file time (0 = now) into the `ssssuuu` timestamp (last 4 digits of seconds + 3 of milliseconds). The `systemTime` parameter exists so tests can be deterministic.
+- `Helpers/TimeHelper.cs` (internal): converts a Windows file time (0 = now) into the `ssssuuu` timestamp (last 4 digits of seconds + 3 of milliseconds). The `systemTime` parameter exists so tests can be deterministic; it is reachable only through the internal `OpenSealCipher.Encode(text, systemTime)` overload.
 - `Polyfills.cs`: internal `NotNullWhen` for older targets.
 - `native/MyOpenSeal`: Win32 C reference port, not part of the .NET build (needs MSBuild with C++ toolset).
 - Tests (xunit, net10.0 only) use golden byte vectors from a port of `crypt()` in `OpenSealTestData.cs`; changes to the algorithm must keep them passing.
