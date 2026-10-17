@@ -42,6 +42,9 @@ public static class OpenSealCipher
     /// Seals a line of text for sending to a FICS server. The result is a Latin-1 string (every
     /// character is at most U+00FF) ending with the line feed that terminates the message.
     /// Characters above U+00FF cannot be represented on the wire and are sent as '?'.
+    /// The cipher also sets the high bit of every character, so a character from U+0080 to U+00FF
+    /// is not recovered intact by the server (it arrives with the bit cleared: U+00E9 becomes 'i');
+    /// the protocol is meant for 7-bit ASCII text.
     /// </summary>
     /// <param name="text">The text to seal, without its line terminator.</param>
     /// <param name="systemTime">A Windows file time to take the timestamp from, or 0 for now.</param>
