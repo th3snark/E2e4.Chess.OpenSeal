@@ -4,7 +4,7 @@
     <TargetFrameworks>net45;netstandard2.0;netstandard2.1;net10.0</TargetFrameworks>
     <Description>C# implementation of the FICS timeseal/openseal handshake encoder, derived from openseal.c by Marcello Mamino (GPL v2 or later).</Description>
     <PackageTags>chess;fics;timeseal;openseal</PackageTags>
-    <PackageReleaseNotes>2.0.1: no code change. The package now carries the E2e4.Chess family icon with the OpenSeal clock badge, and its project and repository URLs point at https://github.com/th3snark/E2e4.Chess.OpenSeal (the repository was renamed).</PackageReleaseNotes>
+    <PackageReleaseNotes>See https://github.com/th3snark/E2e4.Chess.OpenSeal/releases for what changed in each version.</PackageReleaseNotes>
     <PackageLicenseExpression>GPL-2.0-or-later</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <PackageIcon>icon.png</PackageIcon>
