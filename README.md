@@ -14,13 +14,7 @@ Targets `net45`, `netstandard2.0`, `netstandard2.1` and `net10.0`. Install from 
 Public API: `OpenSealCipher.Encode`, `Decode` and `TryDecode`.
 
 The wire format carries 7-bit ASCII only: characters above U+00FF are sent as `?`, and U+0080 to U+00FF reach the
-server with their high bit cleared (so `é` arrives as `i`). Strip or transliterate other text before sealing it.
-
-## Licence
-
-GNU General Public License, version 2 or (at your option) any later version. This code is derived from
-`timeseal/openseal.c` by Marcello Mamino, distributed with FatICS; see [NOTICE](https://github.com/th3snark/E2e4.Chess.OpenSeal/blob/master/NOTICE) and [REFERENCES.md](https://github.com/th3snark/E2e4.Chess.OpenSeal/blob/master/REFERENCES.md).
-An application that includes this package is distributed under the GPL.
+server with their high bit cleared (so `Ã©` arrives as `i`). Strip or transliterate other text before sealing it.
 
 ## Layout
 
@@ -46,3 +40,9 @@ dotnet test E2e4.Chess.OpenSeal.slnx
 ```
 
 Releases: push a `vX.Y.Z` tag and `publish.yml` tests, packs and pushes to nuget.org.
+
+## Licence
+
+GNU General Public License, version 2 or (at your option) any later version. This code is derived from
+`timeseal/openseal.c` by Marcello Mamino, distributed with FatICS; see [NOTICE](https://github.com/th3snark/E2e4.Chess.OpenSeal/blob/master/NOTICE) and [REFERENCES.md](https://github.com/th3snark/E2e4.Chess.OpenSeal/blob/master/REFERENCES.md).
+An application that includes this package is distributed under the GPL.
