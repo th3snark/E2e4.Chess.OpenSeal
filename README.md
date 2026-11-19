@@ -9,7 +9,7 @@ chess client tell the server when it sent each line, so the server can compensat
 string wire = OpenSealCipher.Encode("seek 5 0");   // wire text, ends "\x80\n"; send it as ISO-8859-1
 ```
 
-Targets `net45`, `netstandard2.0`, `netstandard2.1` and `net10.0`. Install from NuGet: `E2e4.Chess.OpenSeal`.
+Targets `net45`, `netstandard2.0`, `netstandard2.1`, `net10.0` and `net11.0`. Install from NuGet: `E2e4.Chess.OpenSeal`.
 
 Public API: `OpenSealCipher.Encode`, `Decode` and `TryDecode`.
 

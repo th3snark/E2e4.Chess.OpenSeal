@@ -12,12 +12,12 @@ Guidance for Claude Code (claude.ai/code) in this repository. See `README.md` fo
 - `Helpers/TimeHelper.cs` (internal): converts a Windows file time (0 = now) into the `ssssuuu` timestamp. The `systemTime` parameter exists for deterministic tests, reachable only through the internal `OpenSealCipher.Encode(text, systemTime)` overload.
 - `Polyfills.cs`: internal `NotNullWhen` for older targets.
 - `native/MyOpenSeal`: Win32 C reference port, not part of the .NET build.
-- Tests (xunit, net10.0) use golden byte vectors in `OpenSealTestData.cs`; algorithm changes must keep them passing.
+- Tests (xunit, net10.0 and net11.0) use golden byte vectors in `OpenSealTestData.cs`; algorithm changes must keep them passing.
 
 ## Rules
 
 - `assets/icon.png` and `assets/icon.svg` are generated; do not hand-edit them.
-- The library multi-targets `net45;netstandard2.0;netstandard2.1;net10.0`: avoid APIs missing from net45/netstandard2.0 (use `Substring`, not ranges; add polyfills only as internal types).
+- The library multi-targets `net45;netstandard2.0;netstandard2.1;net10.0;net11.0`: avoid APIs missing from net45/netstandard2.0 (use `Substring`, not ranges; add polyfills only as internal types).
 - `Directory.Build.props` enables `Nullable`, `TreatWarningsAsErrors` and `EnforceCodeStyleInBuild`; `.editorconfig` violations break the build. NuGet versions are centrally managed in `Directory.Packages.props`.
 - `NoWarn` CA1510 in the csproj is intentional (`ArgumentNullException.ThrowIfNull` is missing on net45/netstandard2.0).
 - Line endings are CRLF (`.editorconfig`). Edit tools can leave LF, which fails `dotnet format whitespace --verify-no-changes` (run in CI).
